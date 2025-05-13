@@ -1,0 +1,71 @@
+import java.util.*;
+import java.lang.*;
+import java.io.*;
+import java.util.Scanner;
+public class Skobki
+{
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int a = scanner.nextInt();
+        int b = scanner.nextInt();
+        String s = scanner.next();
+        char[] skobki = s.toCharArray();
+        int length = 2 * n;
+        long cost = 0;
+        int balance = 0;
+        for (int i = 0; i < length; i++) {
+            if (skobki[i] == '(') {
+                balance++;
+            } else {
+                balance--;
+            }
+
+            if (balance < 0) {
+                boolean foundSwap = false;
+                for (int j = i + 1; j < length; j++) {
+                    if (skobki[j] == '(') {
+                        char temp = skobki[i];
+                        skobki[i] = skobki[j];
+                        skobki[j] = temp;
+                        cost += a;
+                        balance += 2;
+                        foundSwap = true;
+                        break;
+                    }
+                }
+
+                if (!foundSwap) {
+                    skobki[i] = '(';
+                    cost += b;
+                    balance += 2;
+                }
+            }
+        }
+
+        balance = 0;
+        for (int i = 0; i < length; i++) {
+            if (skobki[i] == '(') {
+                balance += 1;
+            } else {
+                balance -= 1;
+            }
+        }
+
+        while (balance > 0) {
+            boolean found = false;
+            for (int j = length - 1; j >= 0; j--) {
+                if (skobki[j] == ')') {
+                    skobki[j] = '(';
+                    cost += b;
+                    balance -= 2;
+                    found = true;
+                    break;
+                }
+            }
+        }
+
+        System.out.println(cost);
+    }
+}
