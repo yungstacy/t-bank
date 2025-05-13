@@ -9,19 +9,7 @@ publuc class TheSumOfTheInterestingThingsOfAllTheBeautifulSequences{
         for (int i = 0; i < n - 1; i++) {
             a[i] = scanner.nextInt();
         }
-
-        if (n == 2) {
-          if (a[0] == 4){
-              System.out.println(8);
-              return;
-          }
-        }
-
-        if (n == 5 && Arrays.equals(a, new int[]{4, 1, 1, 2})) {
-            System.out.println(712);
-            return;
-        }
-
+        
         long totalBeauty = solve(n, a);
         System.out.println(totalBeauty);
     }
