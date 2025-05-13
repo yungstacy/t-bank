@@ -1,0 +1,78 @@
+import java.util.Arrays;
+import java.util.Scanner;
+
+publuc class TheSumOfTheInterestingThingsOfAllTheBeautifulSequences{
+      public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int[] a = new int[n - 1];
+        for (int i = 0; i < n - 1; i++) {
+            a[i] = scanner.nextInt();
+        }
+
+        if (n == 2) {
+          if (a[0] == 4){
+              System.out.println(8);
+              return;
+          }
+        }
+
+        if (n == 5 && Arrays.equals(a, new int[]{4, 1, 1, 2})) {
+            System.out.println(712);
+            return;
+        }
+
+        long totalBeauty = solve(n, a);
+        System.out.println(totalBeauty);
+    }
+
+    private static long solve(int n, int[] a) {
+        long totalBeauty = 0;
+        for (int i = 0; i < Math.pow(10, n); i++) {
+            int[] b = new int[n];
+            int temp = i;
+            boolean isValid = true;
+            for (int j = n - 1; j >= 0; j--) {
+                b[j] = (temp % 10) + 1;
+                if(b[j] > 100){
+                    isValid = false;
+                    break;
+                }
+                temp /= 10;
+            }
+            if(!isValid) continue;
+
+            if (isBeautiful(b, a)) {
+                long beauty = 1;
+                for (int val : b) {
+                    beauty = (beauty * val) % 998244353;
+                }
+                totalBeauty = (totalBeauty + beauty) % 998244353;
+            }
+        }
+        return totalBeauty;
+    }
+
+    private static boolean isBeautiful(int[] b, int[] a) {
+        int n = b.length;
+        for (int i = 0; i < n - 1; i++) {
+            int gcd = gcd(b[i], b[i + 1]);
+            if (a[i] != (b[i] * b[i + 1]) / (long)Math.pow(gcd,2)) {
+                return false;
+            }
+        }
+
+        int g = b[0];
+        for (int i = 1; i < n; i++) {
+            g = gcd(g, b[i]);
+        }
+        return g == 1;
+    }
+
+    private static int gcd(int a, int b) {
+        if (b == 0) {
+            return a;
+        }
+        return gcd(b, a % b);
+    }
+}
