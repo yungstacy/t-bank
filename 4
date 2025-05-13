@@ -1,0 +1,67 @@
+import java.util.*;
+import java.lang.*;
+import java.util.Scanner;
+public class OlegsBirthday{
+     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int[] a = new int[n];
+        for (int i = 0; i < n; i++) {
+            a[i] = scanner.nextInt();
+        }
+
+        final int V = 11;
+        List<Integer>[] last = new List[n];
+        List<Integer>[] nxt = new List[n];
+        for (int i = 0; i < n; i++) {
+            last[i] = new ArrayList<>();
+            nxt[i] = new ArrayList<>();
+        }
+
+        int[] cur = new int[V];
+        Arrays.fill(cur, -1);
+
+        for (int i = 0; i < n; ++i) {
+            cur[a[i]] = i;
+            for (int v = 0; v < V; v++) {
+                last[i].add(cur[v]);
+            }
+        }
+
+        Arrays.fill(cur, -1);
+        for (int i = n - 1; i >= 0; --i) {
+            cur[a[i]] = i;
+            for (int v = 0; v < V; v++) {
+                nxt[i].add(cur[v]);
+            }
+        }
+
+        int[] minR = new int[n];
+        Arrays.fill(minR, -1);
+
+        for (int j = 0; j < n; ++j) {
+            int b = a[j];
+            for (int av = 1; av < V; ++av) {
+                int i = (j > 0 ? last[j - 1].get(av) : -1);
+                if (i == -1) continue;
+                int d = b - av;
+                int cv = b + d;
+                if (cv < 1 || cv > 10) continue;
+                int k = (j + 1 < n ? nxt[j + 1].get(cv) : -1);
+                if (k == -1) continue;
+                if (minR[i] == -1 || k < minR[i]) minR[i] = k;
+            }
+        }
+        
+        for (int i = n - 2; i >= 0; --i) {
+            if (minR[i] == -1 || (minR[i + 1] != -1 && minR[i + 1] < minR[i]))
+                minR[i] = minR[i + 1];
+        }
+
+        long ans = 0;
+        for (int i = 0; i < n; ++i)
+            if (minR[i] != -1) ans += n - minR[i];
+
+        System.out.println(ans);
+    }
+}
