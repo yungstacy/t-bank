@@ -1,0 +1,99 @@
+import java.util.*;
+import java.lang.*;
+import java.io.*;
+
+public class WorkersHeight {
+    static List<Long> calculateProgressiveMaxima(List<Integer> workerHeights) {
+        int workerCount = workerHeights.size();
+        List<Long> progressiveMaxima = new ArrayList<>(Collections.nCopies(workerCount + 1, 0L));
+        PriorityQueue<Integer> smallerWorkers = new PriorityQueue<>(Collections.reverseOrder()); // max-heap
+        PriorityQueue<Integer> tallerWorkers = new PriorityQueue<>(); 
+        long aggregatedSmallerHeights = 0;
+        long overallHeightTotal = 0;
+
+        for (int index = 0; index < workerCount; index++) {
+            int currentWorkerHeight = workerHeights.get(index);
+            overallHeightTotal += currentWorkerHeight;
+
+            if (smallerWorkers.isEmpty() || currentWorkerHeight <= smallerWorkers.peek()) {
+                smallerWorkers.offer(currentWorkerHeight);
+                aggregatedSmallerHeights += currentWorkerHeight;
+            } else {
+                tallerWorkers.offer(currentWorkerHeight);
+            }
+
+            int targetLowerCount = (index + 1) / 2;
+
+            while (smallerWorkers.size() > targetLowerCount) {
+                int tallestFromSmaller = smallerWorkers.poll();
+                aggregatedSmallerHeights -= tallestFromSmaller;
+                tallerWorkers.offer(tallestFromSmaller);
+            }
+            while (smallerWorkers.size() < targetLowerCount) {
+                int shortestFromTaller = tallerWorkers.poll();
+                aggregatedSmallerHeights += shortestFromTaller;
+                smallerWorkers.offer(shortestFromTaller);
+            }
+
+            if (!smallerWorkers.isEmpty() && !tallerWorkers.isEmpty() && smallerWorkers.peek() > tallerWorkers.peek()) {
+                int smallerFromTaller = tallerWorkers.poll();
+                int tallerFromSmaller = smallerWorkers.poll();
+                aggregatedSmallerHeights += smallerFromTaller - tallerFromSmaller;
+                smallerWorkers.offer(smallerFromTaller);
+                tallerWorkers.offer(tallerFromSmaller);
+            }
+
+            if ((index + 1) % 2 == 0) {
+                progressiveMaxima.set(index + 1, overallHeightTotal - 2 * aggregatedSmallerHeights);
+            }
+        }
+        return progressiveMaxima;
+    }
+
+    static long solveForHeights(List<Integer> workforceHeights) {
+        int totalWorkers = workforceHeights.size();
+        if (totalWorkers % 2 == 0) {
+            int halfCount = totalWorkers / 2;
+              List<Integer> sortedWorkerHeights = new ArrayList<>(workforceHeights);
+            Collections.sort(sortedWorkerHeights);
+
+            long upperCumulativeHeight = 0;
+            for (int i = totalWorkers - halfCount; i < totalWorkers; i++) {
+                upperCumulativeHeight += sortedWorkerHeights.get(i);
+            }
+
+            long lowerCumulativeHeight = 0;
+            for (int i = 0; i < halfCount; i++) {
+                lowerCumulativeHeight += sortedWorkerHeights.get(i);
+            }
+
+            return upperCumulativeHeight - lowerCumulativeHeight;
+        }
+
+        // Odd size
+        List<Long> progressiveValues = calculateProgressiveMaxima(workforceHeights);
+        List<Integer> reversedWorkforce = new ArrayList<>(workforceHeights);
+        Collections.reverse(reversedWorkforce);
+
+        List<Long> recedingReversed = calculateProgressiveMaxima(reversedWorkforce);
+        List<Long> recedingValues = new ArrayList<>(recedingReversed);
+        Collections.reverse(recedingValues);
+
+        long greatestDisparity = 0;
+        for (int singletonIndex = 0; singletonIndex < totalWorkers; singletonIndex += 2) {
+            greatestDisparity = Math.max(greatestDisparity, progressiveValues.get(singletonIndex) + recedingValues.get(singletonIndex + 1));
+        }
+        return greatestDisparity;
+    }
+
+    public static void main(String[] args) {
+        Scanner userInput = new Scanner(System.in);
+        int workerTotal = userInput.nextInt();
+        List<Integer> workforceHeights = new ArrayList<>();
+        for (int i = 0; i < workerTotal; i++) {
+            workforceHeights.add(userInput.nextInt());
+        }
+        System.out.println(solveForHeights(workforceHeights));
+        userInput.close();
+    }
+}
